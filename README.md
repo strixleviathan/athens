@@ -22,18 +22,20 @@ Or install it yourself as:
 
 ### Quickstart
 
-There are two main classes for Athens, the `Connection` and the `Query`.  First "open" a connection to the database:
+There are two main classes for Athens, the `Connection` and the `Query`. First "open" a connection to the database:
 
 ```ruby
 conn = Athens::Connection.new(database: 'sample')
 ```
 
 Then start a query:
+
 ```ruby
 query = conn.execute("SELECT * FROM mytable")
 ```
 
-That kicks off an Athena query in the background.  If you want you can just wait for it to finish:
+That kicks off an Athena query in the background. If you want you can just wait for it to finish:
+
 ```ruby
 query.wait
 # or
@@ -41,6 +43,7 @@ query.wait(5) # Wait 5 seconds at most
 ```
 
 When your query is done, grab the results as an array:
+
 ```ruby
 results = query.to_a
 # [
@@ -52,6 +55,7 @@ results = query.to_a
 ```
 
 Or as a hash (which is really an array where each row is a hash):
+
 ```ruby
 results = query.to_h
 # [
@@ -62,6 +66,7 @@ results = query.to_h
 ```
 
 Results are also available as unbuffered enumerators of row arrays:
+
 ```ruby
 query.rows.each {|row| ...}
 # ['column_1', 'column_2', 'column_3']
@@ -71,6 +76,7 @@ query.rows.each {|row| ...}
 ```
 
 Or hashes:
+
 ```ruby
 query.records.each {|record| ...}
 # {'column_1': 15, 'column_2': 'data', 'column_3': true}
@@ -86,11 +92,13 @@ Configure your AWS settings in an `Athens.configure` block (in rails put this in
 
 ```ruby
 Athens.configure do |config|
-  config.output_location = "s3://my-bucket/my-folder/athena/results/"  # Required
-  config.aws_access_key      = 'access'     # Optional
-  config.aws_secret_key      = 'secret'     # Optional
-  config.aws_region          = 'us-east-1'  # Optional
-  config.wait_polling_period = 0.25         # Optional - What period should we poll for the complete query?
+  config.output_location        = "s3://my-bucket/my-folder/athena/results/"  # Required
+  config.aws_access_key         = 'access'     # Optional
+  config.aws_secret_key         = 'secret'     # Optional
+  config.aws_region             = 'us-east-1'  # Optional
+  config.wait_polling_period    = 0.25         # Optional - What period should we poll for the complete query?
+  config.throttling_backoff     = 0            # Optional - How long shoul we back off if we receive a throttling error?
+  config.throttling_timeout     = 0            # Optional - When using throttling backoff, how many seconds should we wait before throwing the exception?
 end
 ```
 
@@ -173,4 +181,3 @@ The gem is available as open source under the terms of the [WTFPL License](http:
 ## Code of Conduct
 
 Everyone interacting in the Athens project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/getletterpress/athens/blob/master/CODE_OF_CONDUCT.md).
-

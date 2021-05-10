@@ -91,10 +91,18 @@ module Athens
 
           break unless result.next_token
 
-          result = @connection.client.get_query_results({
-            query_execution_id: @query_execution_id,
-            next_token: result.next_token
-          })
+          begin
+            result = @connection.client.get_query_results({
+              query_execution_id: @query_execution_id,
+              next_token: result.next_token
+            })
+          # Occurs when we're requesting new records too quickly / simultaneously
+          rescue Aws::Athena::Errors::ThrottlingException => error
+            backoff_timing ||= 0
+            backoff_timing += @throttling_backoff
+
+            raise error if backoff_timing > @throttling_timeout
+            sleep backoff_timing
         end
       end
     end
